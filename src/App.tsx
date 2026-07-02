@@ -76,7 +76,8 @@ export default function App() {
       });
 
       if (!response.ok) {
-        throw new Error("Không thể kết nối đến hệ thống phân tích thuật toán.");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Không thể kết nối đến hệ thống phân tích thuật toán.");
       }
 
       const data = await response.json();
@@ -143,7 +144,8 @@ Em có thắc mắc gì về lý thuyết, cách hoạt động của vòng lặ
       });
 
       if (!response.ok) {
-        throw new Error("Không thể kết nối đến Trợ giảng AI.");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Không thể kết nối đến Trợ giảng AI.");
       }
 
       const data = await response.json();
@@ -185,7 +187,8 @@ Em có thắc mắc gì về lý thuyết, cách hoạt động của vòng lặ
       });
 
       if (!response.ok) {
-        throw new Error("Không thể lấy lời giải mã nguồn.");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Không thể lấy lời giải mã nguồn.");
       }
 
       const data = await response.json();

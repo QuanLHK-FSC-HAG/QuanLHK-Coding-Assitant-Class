@@ -30,7 +30,7 @@ async function generateContentWithFallback(options: {
   contents: string;
   config?: any;
 }) {
-  const modelsToTry = [options.model, "gemini-2.5-flash", "gemini-2.0-flash"];
+  const modelsToTry = [options.model, "gemini-3.5-flash", "gemini-3.1-flash-lite"];
   const maxRetries = 3;
 
   for (const model of modelsToTry) {
@@ -96,7 +96,7 @@ Yêu cầu:
 3. Hãy ghi lại kết quả bằng tiếng Việt đầy đủ và chính xác nhất có thể.`;
 
       const searchResponse = await generateContentWithFallback({
-        model: "gemini-2.5-flash",
+        model: "gemini-3.5-flash",
         contents: searchPrompt,
         config: {
           tools: [{ googleSearch: {} }]
