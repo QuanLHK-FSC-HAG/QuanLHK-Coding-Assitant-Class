@@ -1,0 +1,6 @@
+{
+  "name": "QuanLHK - Coding Assitant Class",
+  "description": "Lớp học bồi dưỡng học sinh giỏi Tin học C++ thông qua thấu hiểu bản chất thuật toán và chatbot trợ giảng tương tác phát triển bởi QuanLHK.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
