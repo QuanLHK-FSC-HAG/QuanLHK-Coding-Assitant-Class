@@ -6,6 +6,15 @@ export interface ChatMessage {
   timestamp: string;
 }
 
+export interface SocraticStep {
+  stepNumber: number;
+  title: string;
+  question: string;
+  options: string[];
+  correctOptionIdx: number;
+  explanation: string;
+}
+
 export interface HsgAnalysis {
   problemTitle: string;
   problemSummary: string;
@@ -13,6 +22,7 @@ export interface HsgAnalysis {
   thinkingSteps: string;
   complexity: string;
   referenceLinks: { title: string; url: string; source: string }[];
+  socraticSteps: SocraticStep[];
 }
 
 export interface HsgPreset {

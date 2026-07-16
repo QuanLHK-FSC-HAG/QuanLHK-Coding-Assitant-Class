@@ -11,15 +11,29 @@ const PORT = 3000;
 
 app.use(express.json());
 
-// Initialize Gemini
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-  httpOptions: {
-    headers: {
-      'User-Agent': 'aistudio-build',
+// Initialize Gemini lazily to avoid crashing on startup if GEMINI_API_KEY is missing
+let aiClient: GoogleGenAI | null = null;
+
+function getAiClient() {
+  if (!aiClient) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error(
+        "Chưa tìm thấy mã khóa GEMINI_API_KEY trên máy chủ. " +
+        "Nếu em tự triển khai ứng dụng lên Vercel/Render, hãy vào phần cài đặt (Settings -> Environment Variables) và thêm biến môi trường GEMINI_API_KEY với giá trị là API Key của Gemini nhé!"
+      );
     }
+    aiClient = new GoogleGenAI({
+      apiKey: apiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        }
+      }
+    });
   }
-});
+  return aiClient;
+}
 
 // Helper to pause execution
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -33,13 +47,16 @@ async function generateContentWithFallback(options: {
   const modelsToTry = [options.model, "gemini-3.5-flash", "gemini-3.1-flash-lite"];
   const maxRetries = 3;
 
+  // Lazily retrieve client and verify key exists
+  const client = getAiClient();
+
   for (const model of modelsToTry) {
     if (!model) continue;
     
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         console.log(`Attempting generateContent using model: ${model}, attempt ${attempt}/${maxRetries}...`);
-        return await ai.models.generateContent({
+        return await client.models.generateContent({
           model: model,
           contents: options.contents,
           config: options.config,
@@ -129,8 +146,9 @@ Nhiệm vụ của bạn:
 3. Giải thích từng bước tư duy logic (Thinking Steps) để từ đề bài dẫn dắt ra thuật toán đó. Điều chỉnh cách giải thích để phù hợp với nhận thức của học sinh ${ageNum} tuổi. Giải thích trực quan, sinh động.
 4. Phân tích độ phức tạp thời gian và không gian (Complexity) bằng Big-O một cách dễ hiểu và lý giải tại sao nó chạy kịp thời gian giới hạn (thường là 1s hoặc 2s).
 5. Liệt kê các link tài nguyên học thuật quốc tế UY TÍN liên quan đến thuật toán này (như usaco.guide, cp-algorithms.com, codeforces.com, cppreference.com). Cung cấp URL chính xác và tiêu đề rõ ràng để học sinh đọc thêm.
+6. Thiết kế đúng 4 câu hỏi Socratic (socraticSteps) có tương tác cao dưới dạng trắc nghiệm 3 lựa chọn, dẫn dắt học sinh từng bước (step by step) để hiểu sâu sắc thuật toán này một cách tự lập (ví dụ: Bước 1: Hiểu giới hạn đề bài và độ phức tạp; Bước 2: Ý tưởng cốt lõi của thuật toán; Bước 3: Công thức chuyển trạng thái hoặc cách tổ chức cấu trúc dữ liệu; Bước 4: Tối ưu hoặc trường hợp đặc biệt biên - corner cases). Các câu hỏi và giải thích phải cực kỳ dễ thương, sư phạm và phù hợp với học sinh độ tuổi này.
 
-YÊU CẦU CỰC KỲ QUAN TRỌNG: 
+YÊU CỰC KỲ QUAN TRỌNG: 
 - TUYỆT ĐỐI KHÔNG cung cấp bất kỳ mã nguồn (source code) C++ hoặc Python hoàn chỉnh nào trong bước phân tích này! Chỉ giải thích thuật toán, ý tưởng, công thức toán học hoặc mã giả (pseudocode) ngắn gọn nếu thực sự cần thiết.
 - Kết quả trả về phải là một đối tượng JSON đúng định dạng như Schema quy định bên dưới.
 
@@ -176,9 +194,29 @@ Hãy phản hồi theo cấu trúc JSON sau:`;
                 },
                 required: ["title", "url", "source"]
               }
+            },
+            socraticSteps: {
+              type: Type.ARRAY,
+              description: "Chuỗi 4 câu hỏi Socratic tương tác từng bước (step-by-step) để dẫn dắt học sinh tự tìm ra giải thuật phù hợp.",
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  stepNumber: { type: Type.INTEGER, description: "Số thứ tự bước (từ 1 đến 4)." },
+                  title: { type: Type.STRING, description: "Tiêu đề của bước tư duy (ví dụ: 'Bước 1: Phân tích độ phức tạp', 'Bước 2: Ý tưởng quy hoạch động')." },
+                  question: { type: Type.STRING, description: "Câu hỏi gợi mở Socratic chi tiết và thân thiện của Thầy giáo trợ giảng để kiểm tra nhận thức của học sinh ở bước này." },
+                  options: {
+                    type: Type.ARRAY,
+                    items: { type: Type.STRING },
+                    description: "3 lựa chọn trả lời trắc nghiệm cho học sinh tương tác (ví dụ: Option đúng, Option sai nhưng phổ biến, Option xin gợi ý)."
+                  },
+                  correctOptionIdx: { type: Type.INTEGER, description: "Chỉ số của câu trả lời chính xác nhất trong mảng options (0, 1 hoặc 2)." },
+                  explanation: { type: Type.STRING, description: "Lời khen ngợi và giải thích sư phạm chi tiết, dẫn dắt sâu sắc của Thầy giáo sau khi học sinh click chọn đáp án đúng để chuẩn bị sang bước tiếp theo." }
+                },
+                required: ["stepNumber", "title", "question", "options", "correctOptionIdx", "explanation"]
+              }
             }
           },
-          required: ["problemTitle", "problemSummary", "algorithmName", "thinkingSteps", "complexity", "referenceLinks"]
+          required: ["problemTitle", "problemSummary", "algorithmName", "thinkingSteps", "complexity", "referenceLinks", "socraticSteps"]
         }
       }
     });
