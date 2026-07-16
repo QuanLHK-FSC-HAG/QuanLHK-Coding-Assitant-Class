@@ -1,4 +1,4 @@
-export type Language = "python" | "cpp";
+export type Language = "cpp";
 
 export interface ChatMessage {
   sender: "user" | "ai";

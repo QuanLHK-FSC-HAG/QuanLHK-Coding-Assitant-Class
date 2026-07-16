@@ -17,7 +17,8 @@ import {
   MessageSquare,
   Lock,
   Unlock,
-  ExternalLink
+  ExternalLink,
+  Download
 } from "lucide-react";
 import { Language, ChatMessage, HsgAnalysis, HsgPreset } from "./types";
 import MarkdownRenderer from "./components/MarkdownRenderer";
@@ -94,7 +95,7 @@ Thầy đã cập nhật chi tiết **Ý tưởng & Các bước tư duy cốt l
 
 Em có thắc mắc gì về lý thuyết, cách hoạt động của vòng lặp, công thức quy hoạch động hay lý do chọn giải thuật này không? Hãy thảo luận trực tiếp dưới đây để thầy giải thích thêm nhé! Thầy sẽ luôn đồng hành cho đến khi em thực sự làm chủ kiến thức này.
 
-*(Lưu ý: Mã nguồn mẫu đang được khóa tạm thời để em rèn luyện tư duy tự lập. Khi nào em thấy đã hiểu rõ giải thuật, hãy nhấn nút **Xác nhận đã hiểu** ở phía dưới để thầy mở khóa mã nguồn mẫu nha!)*`,
+*(Lưu ý học sinh: Để rèn luyện tư duy tự lập chủ động, em cần **trao đổi hỏi đáp ít nhất 3 câu hỏi** với thầy trợ giảng AI về thuật toán này để hệ thống đánh giá cao nỗ lực của em, sau đó mã nguồn mẫu C++ tối ưu kèm bình luận giải thích chi tiết mới được mở khóa để em học tập nha!)*`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setChatMessages([welcomeMsg]);
@@ -200,7 +201,7 @@ Em có thắc mắc gì về lý thuyết, cách hoạt động của vòng lặ
         sender: "ai",
         text: `🎉 Xuất sắc! Thầy rất tự hào vì em đã tập trung làm chủ thuật toán. 
 
-Thầy đã chính thức mở khóa lời giải **${hsgTargetLang === "cpp" ? "C++" : "Python"}** chuẩn mực, tối ưu bậc nhất kèm theo các chú thích giải thích chi tiết ở khung biên soạn bên dưới rồi nhé! 
+Thầy đã chính thức mở khóa lời giải **C++** chuẩn mực, tối ưu bậc nhất kèm theo các chú thích giải thích chi tiết ở khung biên soạn bên dưới rồi nhé! 
 
 Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển khai để học hỏi phong cách viết code chuyên nghiệp nha. Có thắc mắc gì nữa cứ hỏi thầy nhé!`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -220,6 +221,22 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleDownloadCpp = () => {
+    if (!unlockedCode) return;
+    const blob = new Blob([unlockedCode], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    const titleSanitized = hsgAnalysis?.problemTitle
+      ? hsgAnalysis.problemTitle.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/gi, '_')
+      : 'giai_thuat';
+    link.download = `${titleSanitized}.cpp`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans pb-16 antialiased">
       
@@ -227,7 +244,7 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
       <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-indigo-600 text-white rounded-xl shadow-md">
+            <div className="p-2.5 bg-fpt-blue text-white rounded-xl shadow-md">
               <GraduationCap className="w-7 h-7" />
             </div>
             <div>
@@ -235,7 +252,7 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
                 <h1 className="text-2xl font-black text-slate-900 tracking-tight">
                   QuanLHK - Coding Assitant Class
                 </h1>
-                <span className="text-[10px] font-black px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full border border-indigo-200 uppercase tracking-wide">
+                <span className="text-[10px] font-black px-2 py-0.5 bg-fpt-orange/10 text-fpt-orange rounded-full border border-fpt-orange/20 uppercase tracking-wide">
                   Học Lập Trình Thuật Toán
                 </span>
               </div>
@@ -247,7 +264,7 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
           
           <div className="flex items-center gap-2 bg-slate-100 p-1 rounded-lg border border-slate-200">
             <span className="text-xs font-bold text-slate-700 px-2.5 py-1">
-              Phát triển bởi QuanLHK with AI workflow
+              Designed by QuanLHK with Vibe Coding
             </span>
           </div>
         </div>
@@ -256,10 +273,10 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 space-y-10 mt-8">
 
         {/* INTRODUCTION HERO */}
-        <section className="bg-radial from-indigo-50 to-white border border-indigo-100 rounded-3xl p-6 md:p-8 shadow-xs relative overflow-hidden">
+        <section className="bg-radial from-fpt-blue/5 to-white border border-fpt-blue/10 rounded-3xl p-6 md:p-8 shadow-xs relative overflow-hidden">
           <div className="max-w-3xl space-y-4">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-full text-xs font-bold">
-              <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-fpt-blue/10 text-fpt-blue border border-fpt-blue/20 rounded-full text-xs font-bold">
+              <Sparkles className="w-3.5 h-3.5 text-fpt-blue" />
               <span>Phương pháp sư phạm Socratic chủ động</span>
             </div>
             <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
@@ -267,9 +284,9 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
             </h2>
             <p className="text-sm text-slate-600 leading-relaxed font-medium">
               Chào mừng các em học sinh đến với không gian học thuật chuyên sâu. Thay vì sao chép code thụ động, hệ thống sẽ đồng hành cùng các em qua 3 bước: 
-              <span className="text-indigo-600 font-bold"> 1. Phân tích bản chất thuật toán</span>, 
-              <span className="text-indigo-600 font-bold"> 2. Trao đổi, hỏi đáp cùng trợ giảng AI</span> cho tới khi hiểu rõ ý tưởng, và 
-              <span className="text-indigo-600 font-bold"> 3. Mở khóa mã nguồn mẫu chất lượng cao</span> có đầy đủ chú thích chi tiết.
+              <span className="text-fpt-blue font-bold"> 1. Phân tích bản chất thuật toán</span>, 
+              <span className="text-fpt-orange font-bold"> 2. Trao đổi, hỏi đáp cùng trợ giảng AI</span> cho tới khi hiểu rõ ý tưởng, và 
+              <span className="text-fpt-green font-bold"> 3. Mở khóa mã nguồn mẫu chất lượng cao</span> có đầy đủ chú thích chi tiết.
             </p>
           </div>
         </section>
@@ -277,7 +294,7 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
         {/* INPUT AREA */}
         <section id="nhap-de-bai" className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
           <div className="flex items-center gap-2 pb-4 border-b border-slate-100">
-            <BookMarked className="w-5 h-5 text-indigo-600" />
+            <BookMarked className="w-5 h-5 text-fpt-blue" />
             <div>
               <h3 className="font-bold text-base text-slate-900">Nạp đề bài học tập</h3>
               <p className="text-xs text-slate-500">Dán link đề từ các trang chấm tự động để hệ thống tự động tìm đề và thu thập thông tin đề bài.</p>
@@ -297,7 +314,7 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
                   value={hsgProblemUrl}
                   onChange={(e) => setHsgProblemUrl(e.target.value)}
                   placeholder="Dán link bài tập tại đây (Ví dụ: https://oj.vnoi.info/problem/lis hoặc https://codeforces.com/problemset/problem/158/A)"
-                  className="w-full bg-slate-50 border border-slate-200 text-sm px-4 py-3 rounded-xl text-slate-800 font-medium focus:outline-none focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100 transition-all placeholder:text-slate-400"
+                  className="w-full bg-slate-50 border border-slate-200 text-sm px-4 py-3 rounded-xl text-slate-800 font-medium focus:outline-none focus:border-fpt-blue focus:bg-white focus:ring-2 focus:ring-fpt-blue/10 transition-all placeholder:text-slate-400"
                 />
               </div>
 
@@ -309,7 +326,7 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
                   value={hsgProblemDescription}
                   onChange={(e) => setHsgProblemDescription(e.target.value)}
                   placeholder="Dán tóm tắt yêu cầu, các giới hạn thời gian, bộ nhớ, hoặc các bộ test mẫu tại đây nếu đề không có link công khai..."
-                  className="w-full h-40 bg-slate-50 border border-slate-200 text-sm p-4 rounded-xl text-slate-800 font-medium focus:outline-none focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100 transition-all resize-none placeholder:text-slate-400"
+                  className="w-full h-40 bg-slate-50 border border-slate-200 text-sm p-4 rounded-xl text-slate-800 font-medium focus:outline-none focus:border-fpt-blue focus:bg-white focus:ring-2 focus:ring-fpt-blue/10 transition-all resize-none placeholder:text-slate-400"
                 />
               </div>
             </div>
@@ -323,7 +340,7 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
                   <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                     Độ tuổi của em:
                   </label>
-                  <span className="text-sm font-black text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-200">
+                  <span className="text-sm font-black text-fpt-blue bg-fpt-blue/5 px-2.5 py-1 rounded-lg border border-fpt-blue/10">
                     {hsgAge} tuổi
                   </span>
                 </div>
@@ -334,11 +351,11 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
                   max="18"
                   value={hsgAge}
                   onChange={(e) => setHsgAge(Number(e.target.value))}
-                  className="w-full accent-indigo-600 cursor-pointer h-2 bg-slate-200 rounded-lg appearance-none"
+                  className="w-full accent-fpt-orange cursor-pointer h-2 bg-slate-200 rounded-lg appearance-none"
                 />
                 
                 <div className="bg-white rounded-xl p-3 border border-slate-200 text-xs space-y-1">
-                  <div className="font-extrabold text-indigo-700">
+                  <div className="font-extrabold text-fpt-blue">
                     Trình độ khuyên học: {hsgAge <= 11 ? `Lớp ${hsgAge - 5} (Tiểu học)` : hsgAge <= 14 ? `Lớp ${hsgAge - 5} (Trung học cơ sở)` : `Lớp ${hsgAge - 5} (Trung học phổ thông)`}
                   </div>
                   <p className="text-slate-500 leading-relaxed font-medium">
@@ -352,29 +369,9 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
               {/* Language Selector */}
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-700">Ngôn ngữ học tập mục tiêu:</label>
-                <div className="grid grid-cols-2 gap-2 bg-slate-200/50 p-1 rounded-xl border border-slate-250">
-                  <button
-                    type="button"
-                    onClick={() => setHsgTargetLang("cpp")}
-                    className={`py-2 text-xs font-bold rounded-lg transition-all ${
-                      hsgTargetLang === "cpp"
-                        ? "bg-white text-indigo-700 shadow-sm border border-slate-200"
-                        : "text-slate-600 hover:text-slate-800"
-                    }`}
-                  >
-                    ⚙️ C++ (HSG khuyên dùng)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setHsgTargetLang("python")}
-                    className={`py-2 text-xs font-bold rounded-lg transition-all ${
-                      hsgTargetLang === "python"
-                        ? "bg-white text-indigo-700 shadow-sm border border-slate-200"
-                        : "text-slate-600 hover:text-slate-800"
-                    }`}
-                  >
-                    🐍 Python
-                  </button>
+                <div className="p-3 bg-fpt-blue/5 rounded-xl border border-fpt-blue/10 flex items-center justify-between">
+                  <span className="text-xs font-black text-fpt-blue">⚙️ C++ (Ngôn ngữ HSG chính thức)</span>
+                  <span className="text-[10px] font-extrabold px-2 py-0.5 bg-fpt-green text-white rounded-full">Kích hoạt</span>
                 </div>
               </div>
 
@@ -383,7 +380,7 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
                 type="button"
                 onClick={handleHsgAnalyze}
                 disabled={hsgIsAnalyzing}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:text-slate-500 text-white font-extrabold py-3.5 px-4 rounded-xl text-sm flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                className="w-full bg-fpt-blue hover:bg-fpt-blue/90 disabled:bg-slate-300 disabled:text-slate-500 text-white font-extrabold py-3.5 px-4 rounded-xl text-sm flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
               >
                 {hsgIsAnalyzing ? (
                   <>
@@ -392,7 +389,7 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4.5 h-4.5" />
+                    <Sparkles className="w-4.5 h-4.5 text-fpt-orange" />
                     <span>Phân tích & Vận hành Lớp học 🚀</span>
                   </>
                 )}
@@ -423,10 +420,10 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
             <div className="lg:col-span-6 bg-white border border-slate-200 rounded-3xl shadow-sm flex flex-col h-[750px] overflow-hidden">
               <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Lightbulb className="w-5 h-5 text-indigo-600" />
+                  <Lightbulb className="w-5 h-5 text-fpt-blue" />
                   <span className="font-extrabold text-xs text-slate-700 uppercase tracking-wider">💡 Hướng dẫn lý thuyết & Thiết kế thuật toán</span>
                 </div>
-                <span className="text-[11px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full uppercase">
+                <span className="text-[11px] font-bold text-fpt-blue bg-fpt-blue/5 border border-fpt-blue/10 px-3 py-1 rounded-full uppercase">
                   {hsgAnalysis.algorithmName || "Mô hình toán học"}
                 </span>
               </div>
@@ -436,7 +433,7 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
                 {/* Title */}
                 <div className="space-y-2">
                   <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Bài toán hiện tại:</div>
-                  <h2 className="text-xl font-black text-slate-900 border-l-4 border-indigo-600 pl-3">
+                  <h2 className="text-xl font-black text-slate-900 border-l-4 border-fpt-blue pl-3">
                     {hsgAnalysis.problemTitle}
                   </h2>
                   <div className="text-xs font-semibold bg-slate-50 text-slate-600 p-4 rounded-xl border border-slate-200 leading-relaxed">
@@ -449,17 +446,17 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
                   <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider flex items-center gap-1">
                     <BookOpen className="w-4 h-4 text-slate-400" /> Các bước tư duy khoa học ({hsgAge} tuổi)
                   </h4>
-                  <div className="bg-indigo-50/20 p-5 rounded-2xl border border-indigo-100/50 leading-relaxed text-slate-700">
+                  <div className="bg-fpt-blue/5 p-5 rounded-2xl border border-fpt-blue/10 leading-relaxed text-slate-700">
                     <MarkdownRenderer content={hsgAnalysis.thinkingSteps} />
                   </div>
                 </div>
 
                 {/* Big-O Complexity */}
-                <div className="bg-amber-50/30 p-4 rounded-xl border border-amber-200/50 space-y-1.5">
-                  <h5 className="text-[11px] font-black text-amber-800 uppercase tracking-wide flex items-center gap-1">
-                    <AlertCircle className="w-3.5 h-3.5 text-amber-600" /> Độ phức tạp lý thuyết tối ưu:
+                <div className="bg-fpt-orange/5 p-4 rounded-xl border border-fpt-orange/20 space-y-1.5">
+                  <h5 className="text-[11px] font-black text-fpt-orange uppercase tracking-wide flex items-center gap-1">
+                    <AlertCircle className="w-3.5 h-3.5 text-fpt-orange" /> Độ phức tạp lý thuyết tối ưu:
                   </h5>
-                  <p className="font-mono text-xs text-amber-800 font-bold bg-amber-100/50 px-2.5 py-1 rounded-lg border border-amber-200/50 inline-block">
+                  <p className="font-mono text-xs text-fpt-orange font-bold bg-fpt-orange/10 px-2.5 py-1 rounded-lg border border-fpt-orange/20 inline-block">
                     {hsgAnalysis.complexity}
                   </p>
                 </div>
@@ -477,18 +474,18 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
                           href={link.url}
                           target="_blank"
                           rel="noreferrer"
-                          className="group p-3.5 rounded-xl border border-slate-200 bg-white hover:border-indigo-500 hover:bg-indigo-50/10 transition-all flex items-center justify-between cursor-pointer"
+                          className="group p-3.5 rounded-xl border border-slate-200 bg-white hover:border-fpt-blue hover:bg-fpt-blue/5 transition-all flex items-center justify-between cursor-pointer"
                         >
                           <div className="space-y-0.5 pr-3">
-                            <div className="font-bold text-xs text-slate-800 group-hover:text-indigo-600 transition-colors flex items-center gap-1">
+                            <div className="font-bold text-xs text-slate-800 group-hover:text-fpt-blue transition-colors flex items-center gap-1">
                               {link.title}
                               <ExternalLink className="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                             </div>
                             <div className="text-[10px] text-slate-400 font-mono">
-                              Nguồn học tập: <span className="font-bold text-indigo-600">{link.source}</span> • {link.url}
+                              Nguồn học tập: <span className="font-bold text-fpt-blue">{link.source}</span> • {link.url}
                             </div>
                           </div>
-                          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-0.5 transition-all shrink-0" />
+                          <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-fpt-blue group-hover:translate-x-0.5 transition-all shrink-0" />
                         </a>
                       ))}
                     </div>
@@ -504,7 +501,7 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
               {/* Tutor Header */}
               <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <MessageSquare className="w-5 h-5 text-indigo-600" />
+                  <MessageSquare className="w-5 h-5 text-fpt-blue" />
                   <span className="font-extrabold text-xs text-slate-700 uppercase tracking-wider">💬 Thảo luận trao đổi cùng Thầy trợ giảng</span>
                 </div>
                 <span className="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
@@ -522,7 +519,7 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
                   >
                     <div className={`max-w-[85%] rounded-2xl px-4 py-3 shadow-xs text-xs md:text-sm leading-relaxed ${
                       msg.sender === "user"
-                        ? "bg-indigo-600 text-white rounded-tr-none"
+                        ? "bg-fpt-blue text-white rounded-tr-none"
                         : "bg-white text-slate-800 border border-slate-200 rounded-tl-none"
                     }`}>
                       <div className="font-semibold text-[10px] mb-1 opacity-75">
@@ -531,7 +528,7 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
                       <div className="markdown-body">
                         <MarkdownRenderer content={msg.text} />
                       </div>
-                      <span className={`block text-[9px] mt-1.5 text-right ${msg.sender === "user" ? "text-indigo-200" : "text-slate-400"}`}>
+                      <span className={`block text-[9px] mt-1.5 text-right ${msg.sender === "user" ? "text-blue-100" : "text-slate-400"}`}>
                         {msg.timestamp}
                       </span>
                     </div>
@@ -542,9 +539,9 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
                   <div className="flex justify-start">
                     <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-none px-4 py-3 shadow-xs flex items-center gap-2">
                       <div className="flex gap-1">
-                        <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce"></span>
-                        <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce delay-100"></span>
-                        <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce delay-200"></span>
+                        <span className="w-1.5 h-1.5 bg-fpt-blue rounded-full animate-bounce"></span>
+                        <span className="w-1.5 h-1.5 bg-fpt-blue rounded-full animate-bounce delay-100"></span>
+                        <span className="w-1.5 h-1.5 bg-fpt-blue rounded-full animate-bounce delay-200"></span>
                       </div>
                       <span className="text-xs text-slate-400 font-medium">Thầy trợ giảng đang phân tích câu trả lời...</span>
                     </div>
@@ -561,12 +558,12 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
                     placeholder="Em muốn hỏi gì về công thức, cấu trúc mảng, hay tối ưu vòng lặp? Nhắn thầy..."
-                    className="flex-1 bg-slate-50 border border-slate-200 text-xs px-4 py-3 rounded-xl focus:outline-none focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100 font-medium text-slate-800 placeholder:text-slate-400"
+                    className="flex-1 bg-slate-50 border border-slate-200 text-xs px-4 py-3 rounded-xl focus:outline-none focus:border-fpt-blue focus:bg-white focus:ring-2 focus:ring-fpt-blue/10 font-medium text-slate-800 placeholder:text-slate-400"
                   />
                   <button
                     type="submit"
                     disabled={!chatInput.trim() || chatLoading}
-                    className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-100 disabled:text-slate-400 text-white font-extrabold px-5 py-3 rounded-xl text-xs transition-all cursor-pointer shadow-xs shrink-0"
+                    className="bg-fpt-blue hover:bg-fpt-blue/90 disabled:bg-slate-100 disabled:text-slate-400 text-white font-extrabold px-5 py-3 rounded-xl text-xs transition-all cursor-pointer shadow-xs shrink-0"
                   >
                     Gửi hỏi thầy
                   </button>
@@ -576,61 +573,132 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
               {/* Unlock code container */}
               <div className="border-t border-slate-200 p-5 bg-slate-50/80 flex flex-col justify-between shrink-0">
                 {!hsgCodeUnlocked ? (
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-2.5">
-                      <Lock className="w-4.5 h-4.5 text-amber-500 shrink-0 mt-0.5" />
-                      <p className="text-[11px] font-semibold text-slate-500 leading-relaxed">
-                        Mã nguồn mẫu tối ưu {hsgTargetLang.toUpperCase()} đang tạm khóa. Thầy trợ giảng khuyến khích em suy nghĩ chủ động bằng cách hỏi đáp ở trên. Khi nào em cảm thấy đã nắm vững thuật toán, hãy nhấn nút dưới để mở khóa nhé!
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleHsgUnlockCode}
-                      disabled={isUnlocking}
-                      className="w-full bg-amber-400 hover:bg-amber-500 disabled:bg-slate-300 text-slate-900 font-black py-3.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
-                    >
-                      {isUnlocking ? (
-                        <>
-                          <div className="w-3.5 h-3.5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
-                          <span>Thầy đang biên soạn mã nguồn chuẩn thi đấu...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Unlock className="w-4 h-4 text-slate-900" />
-                          <span>Em đã hiểu rõ thuật toán ➔ Mở khóa mã nguồn mẫu {hsgTargetLang.toUpperCase()} có bình luận</span>
-                        </>
-                      )}
-                    </button>
+                  <div className="space-y-4">
+                    {/* Socratic Progress Bar & Threshold display */}
+                    {(() => {
+                      const userQuestionsCount = chatMessages.filter(msg => msg.sender === "user").length;
+                      const isSocraticMet = userQuestionsCount >= 3;
+                      return (
+                        <div className="space-y-3">
+                          <div className="bg-fpt-orange/5 border border-fpt-orange/20 rounded-2xl p-4 space-y-3">
+                            <div className="flex justify-between items-center">
+                              <span className="text-[11px] font-black uppercase text-fpt-orange tracking-wider flex items-center gap-1.5">
+                                <Lock className="w-4 h-4" /> TRẠNG THÁI RÈN LUYỆN TƯ DUY 🔐
+                              </span>
+                              <span className="text-[10px] font-black text-fpt-orange bg-white px-2.5 py-0.5 rounded-full border border-fpt-orange/10">
+                                {userQuestionsCount}/3 câu hỏi đạt chuẩn
+                              </span>
+                            </div>
+                            
+                            <div className="space-y-1.5">
+                              {/* Custom FPT Orange/Blue/Green animated progress bar */}
+                              <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden flex">
+                                <div 
+                                  className={`h-full transition-all duration-300 ${
+                                    userQuestionsCount >= 3 
+                                      ? 'bg-fpt-green' 
+                                      : userQuestionsCount > 0 
+                                        ? 'bg-fpt-orange' 
+                                        : 'bg-fpt-blue'
+                                  }`}
+                                  style={{ width: `${Math.min(100, (userQuestionsCount / 3) * 100)}%` }}
+                                />
+                              </div>
+                              
+                              <p className="text-[11px] font-semibold text-slate-500 leading-relaxed">
+                                {userQuestionsCount >= 3 ? (
+                                  <span className="text-fpt-green font-bold flex items-center gap-1">
+                                    ✓ Đã đạt yêu cầu rèn luyện sư phạm! Em đã trao đổi thảo luận sâu sắc. Hãy nhấn nút phía dưới để xem mã nguồn C++ có bình luận chi tiết.
+                                  </span>
+                                ) : (
+                                  <span>
+                                    Để kích thích sự chủ động bồi dưỡng học thuật, em cần <strong>trao đổi thêm ít nhất {3 - userQuestionsCount} câu hỏi</strong> với Thầy trợ giảng AI trước khi mở khóa lời giải mẫu C++.
+                                  </span>
+                                )}
+                              </p>
+                            </div>
+
+                            {/* Interactive progress markers */}
+                            <div className="grid grid-cols-3 gap-2 text-[9px] text-center font-extrabold">
+                              <div className={`p-1.5 rounded-lg border transition-all ${userQuestionsCount >= 1 ? 'border-fpt-green/30 bg-fpt-green/5 text-fpt-green' : 'border-slate-200 bg-slate-50 text-slate-400'}`}>
+                                Hỏi câu 1 {userQuestionsCount >= 1 ? "✓" : "○"}
+                              </div>
+                              <div className={`p-1.5 rounded-lg border transition-all ${userQuestionsCount >= 2 ? 'border-fpt-green/30 bg-fpt-green/5 text-fpt-green' : 'border-slate-200 bg-slate-50 text-slate-400'}`}>
+                                Hỏi câu 2 {userQuestionsCount >= 2 ? "✓" : "○"}
+                              </div>
+                              <div className={`p-1.5 rounded-lg border transition-all ${userQuestionsCount >= 3 ? 'border-fpt-green/30 bg-fpt-green/5 text-fpt-green' : 'border-slate-200 bg-slate-50 text-slate-400'}`}>
+                                Hỏi câu 3 {userQuestionsCount >= 3 ? "✓" : "○"}
+                              </div>
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={handleHsgUnlockCode}
+                            disabled={isUnlocking || !isSocraticMet}
+                            className={`w-full font-black py-3.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer ${
+                              isSocraticMet 
+                                ? 'bg-fpt-green hover:bg-fpt-green/90 text-white' 
+                                : 'bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300'
+                            }`}
+                          >
+                            {isUnlocking ? (
+                              <>
+                                <div className="w-3.5 h-3.5 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div>
+                                <span>Thầy đang biên soạn mã nguồn chuẩn thi đấu...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Unlock className="w-4 h-4" />
+                                <span>Em đã hiểu thuật toán ➔ Mở khóa mã nguồn mẫu C++</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      );
+                    })()}
                   </div>
                 ) : (
                   <div className="space-y-4">
                     <div className="flex justify-between items-center bg-emerald-50 px-3.5 py-3 rounded-xl border border-emerald-200">
                       <span className="text-[11px] text-emerald-800 font-bold flex items-center gap-1.5">
-                        <Check className="w-4 h-4 text-emerald-600" /> Mở khóa mã nguồn {hsgTargetLang.toUpperCase()} thành công!
+                        <Check className="w-4 h-4 text-emerald-600" /> Mở khóa mã nguồn C++ thành công!
                       </span>
-                      <button
-                        type="button"
-                        onClick={handleCopyCode}
-                        className="text-[10px] font-extrabold text-indigo-700 hover:underline flex items-center gap-1 cursor-pointer"
-                      >
-                        {copied ? (
-                          <>
-                            <Check className="w-3 h-3 text-emerald-600" />
-                            <span>Đã sao chép!</span>
-                          </>
-                        ) : (
-                          <>
-                            <Clipboard className="w-3.5 h-3.5" />
-                            <span>Sao chép code</span>
-                          </>
-                        )}
-                      </button>
+                      
+                      <div className="flex items-center">
+                        <button
+                          type="button"
+                          onClick={handleCopyCode}
+                          className="text-[10px] font-extrabold text-fpt-blue hover:underline flex items-center gap-1 cursor-pointer"
+                        >
+                          {copied ? (
+                            <>
+                              <Check className="w-3 h-3 text-emerald-600" />
+                              <span>Đã sao chép!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Clipboard className="w-3.5 h-3.5" />
+                              <span>Sao chép</span>
+                            </>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={handleDownloadCpp}
+                          className="text-[10px] font-extrabold text-fpt-orange hover:underline flex items-center gap-1 cursor-pointer ml-3 border-l border-slate-200 pl-3"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>Tải file .cpp</span>
+                        </button>
+                      </div>
                     </div>
                     
                     {/* Source Code Container */}
                     <div className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-900 shadow-inner">
                       <div className="absolute top-2.5 left-4 text-[9px] font-mono text-slate-500 uppercase tracking-wider">
-                        {hsgTargetLang} (Lời giải mẫu của Thầy trợ giảng)
+                        C++ (Lời giải mẫu tối ưu của Thầy trợ giảng)
                       </div>
                       <div className="p-4 pt-8 overflow-y-auto max-h-[160px] font-mono text-[11px] text-emerald-400 text-left whitespace-pre">
                         {unlockedCode}
@@ -640,7 +708,7 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
                     {/* Code analysis summary */}
                     <div className="text-[11px] text-slate-600 bg-white border border-slate-200 p-3.5 rounded-xl overflow-y-auto max-h-[110px] leading-relaxed">
                       <div className="font-bold text-slate-800 mb-1 flex items-center gap-1">
-                        <CheckSquare className="w-3.5 h-3.5 text-emerald-600" /> Phân tích kỹ thuật lập trình:
+                        <CheckSquare className="w-3.5 h-3.5 text-emerald-600" /> Phân tích kỹ thuật lập trình C++:
                       </div>
                       <MarkdownRenderer content={unlockedExplanation} />
                     </div>
@@ -656,8 +724,8 @@ Em hãy đọc kỹ các thư viện, cấu trúc dữ liệu và logic triển 
       </main>
 
       <footer className="text-center text-xs text-slate-400 mt-20 max-w-7xl mx-auto border-t border-slate-200 pt-8 space-y-1">
-        <p>@2026 Designed by QuanLHK - Fschool Hậu Giang</p>
-        <p className="text-indigo-600/70 font-semibold">Tích hợp Trợ lý Socratic bồi dưỡng tư duy lập trình</p>
+        <p>© 2026 Designed by QuanLHK with Vibe Coding - Fschool Hậu Giang</p>
+        <p className="text-fpt-orange font-semibold">Tích hợp Trợ lý Socratic bồi dưỡng tư duy lập trình chủ động</p>
       </footer>
 
     </div>

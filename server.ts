@@ -221,7 +221,7 @@ ${chatHistoryText}
 
 Yêu cầu đối với phản hồi của Thầy giáo:
 1. Giải đáp thắc mắc của học sinh về thuật toán, độ phức tạp, các trường hợp đặc biệt (corner cases), hoặc cách tổ chức cấu trúc dữ liệu.
-2. TUYỆT ĐỐI KHÔNG cung cấp code C++ hay Python hoàn chỉnh! Nếu học sinh hỏi xin code, hãy trì hoãn một cách khéo léo và giải thích: "Thầy rất vui vì em muốn bắt tay vào code! Nhưng để rèn luyện tư duy HSG tốt nhất, em hãy thử tự trả lời xem đã hiểu rõ ý tưởng chưa nhé. Khi nào em thực sự hiểu rõ thuật toán, hãy nhấn nút 'Xác nhận Đã hiểu' hoặc bảo thầy 'Em đã hiểu rõ' để thầy mở khóa toàn bộ mã nguồn C++ có comment giải thích chi tiết nhất cho em nha!"
+2. TUYỆT ĐỐI KHÔNG cung cấp code C++ hoàn chỉnh! Nếu học sinh hỏi xin code, hãy trì hoãn một cách khéo léo và giải thích: "Thầy rất vui vì em muốn bắt tay vào code! Nhưng để rèn luyện tư duy HSG tốt nhất, em hãy thử tự trả lời xem đã hiểu rõ ý tưởng chưa nhé. Khi nào em thực sự hiểu rõ thuật toán, hãy nhấn nút 'Xác nhận Đã hiểu' dưới khung chat hoặc bảo thầy 'Em đã hiểu rõ' để thầy mở khóa toàn bộ mã nguồn C++ có comment giải thích chi tiết nhất cho em nha!"
 3. Đưa ra các gợi ý nhỏ, các câu hỏi gợi mở để kích thích tư duy của học sinh.
 4. Trình bày phản hồi ngắn gọn, dễ hiểu, sử dụng định dạng Markdown sạch đẹp.`;
 
@@ -240,13 +240,13 @@ Yêu cầu đối với phản hồi của Thầy giáo:
 
 // Endpoint: Unlock Code with Detailed Explanations
 app.post("/api/hsg/unlock-code", async (req, res) => {
-  const { problemTitle, problemSummary, algorithmName, thinkingSteps, age, targetLang = "cpp" } = req.body;
+  const { problemTitle, problemSummary, algorithmName, thinkingSteps, age } = req.body;
 
   const ageNum = Number(age) || 14;
   const gradeStr = ageNum <= 10 ? "Lớp 5" : ageNum <= 11 ? "Lớp 6" : ageNum <= 12 ? "Lớp 7" : ageNum <= 13 ? "Lớp 8" : ageNum <= 14 ? "Lớp 9" : ageNum <= 15 ? "Lớp 10" : ageNum <= 16 ? "Lớp 11" : ageNum <= 12 ? "Lớp 12" : "Đại học";
 
   const prompt = `Bạn là một lập trình viên thi đấu hàng đầu (Competitive Programmer) và Huấn luyện viên HSG xuất sắc.
-Hãy viết một lời giải mã nguồn mẫu tối ưu nhất bằng ngôn ngữ ${targetLang === "cpp" ? "C++" : "Python"} cho bài toán sau:
+Hãy viết một lời giải mã nguồn mẫu tối ưu nhất bằng ngôn ngữ C++ cho bài toán sau:
 
 Tên bài toán: ${problemTitle}
 Tóm tắt yêu cầu: ${problemSummary}
@@ -255,7 +255,7 @@ Trình độ học sinh: ${ageNum} tuổi (học sinh ${gradeStr}).
 
 Yêu cầu cho mã nguồn của bạn:
 1. Đạt hiệu năng tối ưu nhất về thời gian chạy và bộ nhớ (đáp ứng tiêu chuẩn chấm tự động trên Codeforces/USACO/VNOI).
-2. Nếu là C++: Sử dụng thư viện chuẩn tốt, thiết lập fast I/O (\`std::ios_base::sync_with_stdio(false); std::cin.tie(NULL);\`), viết cấu trúc code sạch đẹp, chuẩn mực của lập trình thi đấu.
+2. Sử dụng thư viện chuẩn tốt, thiết lập fast I/O (\`std::ios_base::sync_with_stdio(false); std::cin.tie(NULL);\`), viết cấu trúc code sạch đẹp, chuẩn mực của lập trình thi đấu C++.
 3. Thêm các chú thích (comments) bằng tiếng Việt cực kỳ chi tiết, dễ hiểu ở từng dòng hoặc khối lệnh quan trọng, lý giải mục đích lập trình của dòng đó phù hợp cho học sinh ${ageNum} tuổi.
 4. Sử dụng tên biến có nghĩa rõ ràng, dễ theo dõi.
 
@@ -275,7 +275,7 @@ Hãy phản hồi theo định dạng JSON có cấu trúc sau:`;
           properties: {
             code: {
               type: Type.STRING,
-              description: "Mã nguồn C++ hoặc Python hoàn chỉnh, tối ưu và có nhiều chú thích tiếng Việt."
+              description: "Mã nguồn C++ hoàn chỉnh, tối ưu và có nhiều chú thích tiếng Việt."
             },
             explanation: {
               type: Type.STRING,
